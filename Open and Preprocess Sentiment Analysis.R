@@ -9,7 +9,7 @@ if ("pacman" %in% rownames(installed.packages()) == FALSE) {
   library(pacman)
   rm(list = ls(all = TRUE))
   p_unload(pacman::p_loaded(), character.only = TRUE)
-  pacman::p_load(caret,ggplot2,dplyr,lubridate, plotly,readr, doParallel, corrplot, e1071, kknn, C50, ROSE, plyr)
+  pacman::p_load(caret,ggplot2,dplyr,lubridate, plotly,readr, doParallel, corrplot, e1071, kknn, C50, ROSE, plyr,DMwR)
 }
 
 # Get the location of the current script in order to be perfectly transferable
@@ -36,10 +36,10 @@ iPhone$iphonesentiment <- factor(iPhone$iphonesentiment, ordered = T)
 samsung$galaxysentiment <- factor(samsung$galaxysentiment , ordered = T)
 # scale 0: very negative, 1: negative, 2: somewhat negative, 3: somewhat positive, 4: positive, 5: very positive
 
-# Recode factors
+# Recode factors AND set just to 2 levels positive and negative
 
-iPhone$iphonesentiment <- plyr::revalue(iPhone$iphonesentiment, c("0"="VNEG", "1" = "NEG", "2" = "SNEG","3" = "SPOS", "4" = "POS", "5" = "HPOS"))
-samsung$galaxysentiment <- plyr::revalue(samsung$galaxysentiment, c("0"="VNEG", "1" = "NEG", "2" = "SNEG","3" = "SPOS", "4" = "POS", "5" = "HPOS"))
+iPhone$iphonesentiment <- plyr::revalue(iPhone$iphonesentiment, c("0"="NEG", "1" = "NEG", "2" = "NEG","3" = "POS", "4" = "POS", "5" = "POS"))
+samsung$galaxysentiment <- plyr::revalue(samsung$galaxysentiment, c("0"="NEG", "1" = "NEG", "2" = "NEG","3" = "POS", "4" = "POS", "5" = "POS"))
 
 # iPhone case
 # Histogram Sentiment
@@ -52,7 +52,7 @@ plot_ly(samsung, x= ~samsung$galaxysentiment, type='histogram')%>%
         layout(title = "Distribution Galaxy Sentiment")
 
 # From the histograms above we can see that both datasets have the same problem : class imbalance
-# very positive sentiment beeing the majority class with the other 5 classes much less representated
+# very positive sentiment beeing the majority class with the other  class much less representated
 
 # Primary Feature selection ----
 # For each dataset we must delete the columns that have nothing to do with either samsung or iphone
@@ -60,5 +60,7 @@ plot_ly(samsung, x= ~samsung$galaxysentiment, type='histogram')%>%
 iPhone <- iPhone %>% select(grep("iphone", names(iPhone)), grep("ios", names(iPhone)))
 samsung <- samsung %>% select(grep("galaxy", names(samsung)), grep("samsung", names(samsung)),grep("google", names(samsung)))
 
-
+# MOVE SENTIMENT LAST COLUMN
+iPhone <- iPhone %>% select(-iphonesentiment,everything())
+samsung <- samsung %>% select(-galaxysentiment,everything())
 

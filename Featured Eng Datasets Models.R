@@ -41,7 +41,8 @@ testingSamsungRFE <- samsungRFE[-inTrainSamsungRFE,]
 # Apply model on all datasets and test them 
 
 # Train Control
-ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3, allowParallel = T, summaryFunction = mnLogLoss, classProbs = T)
+# smote and log loss for clasa imbalance fix
+ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3, allowParallel = T, summaryFunction = mnLogLoss, classProbs = T, sampling = "smote")
 
 # Create Cluster with desired number of cores. Don't use them all! Your computer is running other processes. 
 cl <- makeCluster(3)
@@ -59,28 +60,29 @@ DecTreeModelCORiPhone <- train(iphonesentiment ~ .,
                                metric="logLoss",
                                trControl= ctrl)
 
-# Test c50 COR iPhone Accuracy : 0.7213,  Kappa : 0.4315
+# Test c50 COR iPhone  Accuracy : 0.8656,  Kappa : 0.5134
 
 DecTreePredCORiPhone <- predict(DecTreeModelCORiPhone, newdata = testingiPhoneCOR)
 
-print(cmDecTreeCORiPhone <- confusionMatrix(DecTreePredCORiPhone, testingiPhoneCOR$iphonesentiment))
+print(cmDecTreeCORiPhone <- confusionMatrix(DecTreePredCORiPhone, testingiPhoneCOR$iphonesentiment, positive = "POS"))
 
-# saveRDS(DecTreeModelCORiPhone,"DecTreeModelCORiPhone.RDS")
+#saveRDS(DecTreeModelCORiPhone,"DecTreeModelCORiPhone.RDS")
 
 # 1.2. C5.0 COR Samsung  
 
 DecTreeModelCORSamsung <- train(galaxysentiment ~ .,
                                 data =trainingSamsungCOR, 
                                 method = "C5.0",
+                                metric="logLoss",
                                 trControl= ctrl)
 
-# Test c50 COR Samsung   Accuracy : 0.6534,  Kappa : 0.215
+# Test c50 COR Samsung   Accuracy : 0.8152,  Kappa : 0.215
 
 DecTreePredCORSamsung <- predict(DecTreeModelCORSamsung, newdata = testingSamsungCOR)
 
-print(cmDecTreeCORSamsung <- confusionMatrix(DecTreePredCORSamsung, testingSamsungCOR$galaxysentiment))
+print(cmDecTreeCORSamsung <- confusionMatrix(DecTreePredCORSamsung, testingSamsungCOR$galaxysentiment, positive = "POS"))
 
-# saveRDS(DecTreeModelCORSamsung,"DecTreeModelCORSamsung.RDS")
+#saveRDS(DecTreeModelCORSamsung,"DecTreeModelCORSamsung.RDS")
 
 # 2. Model for NZV Datasets ----
 
@@ -89,13 +91,14 @@ print(cmDecTreeCORSamsung <- confusionMatrix(DecTreePredCORSamsung, testingSamsu
 DecTreeModelNZViPhone <- train(iphonesentiment ~ .,
                                data =trainingiPhoneNZV, 
                                method = "C5.0",
+                               metric="logLoss",
                                trControl= ctrl)
 
-# Test c50 NZV iPhone Accuracy : 0.7201 , Kappa : 0.4315 
+# Test c50 NZV iPhone Accuracy : 0.8509 , Kappa : 0.4708 
 
 DecTreePredNZViPhone <- predict(DecTreeModelNZViPhone, newdata = testingiPhoneNZV)
 
-print(cmDecTreeNZViPhone <- confusionMatrix(DecTreePredNZViPhone, testingiPhoneNZV$iphonesentiment))
+print(cmDecTreeNZViPhone <- confusionMatrix(DecTreePredNZViPhone, testingiPhoneNZV$iphonesentiment, positive = "POS"))
 
 # saveRDS(DecTreeModelNZViPhone,"DecTreeModelNZViPhone.RDS")
 
@@ -104,13 +107,14 @@ print(cmDecTreeNZViPhone <- confusionMatrix(DecTreePredNZViPhone, testingiPhoneN
 DecTreeModelNZVSamsung <- train(galaxysentiment ~ .,
                                 data =trainingSamsungNZV, 
                                 method = "C5.0",
+                                metric="logLoss",
                                 trControl= ctrl)
 
-# Test c50 NZV Samsung   Accuracy : 0.6421, Kappa : 0.1662  
+# Test c50 NZV Samsung   Accuracy : 0.8216 ,  Kappa : 0.2541  
 
 DecTreePredNZVSamsung <- predict(DecTreeModelNZVSamsung, newdata = testingSamsungNZV)
 
-print(cmDecTreeNZVSamsung <- confusionMatrix(DecTreePredNZVSamsung, testingSamsungNZV$galaxysentiment))
+print(cmDecTreeNZVSamsung <- confusionMatrix(DecTreePredNZVSamsung, testingSamsungNZV$galaxysentiment, positive = "POS"))
 
 # saveRDS(DecTreeModelNZVSamsung,"DecTreeModelNZVSamsung.RDS")
 
@@ -121,13 +125,14 @@ print(cmDecTreeNZVSamsung <- confusionMatrix(DecTreePredNZVSamsung, testingSamsu
 DecTreeModelRFEiPhone <- train(iphonesentiment ~ .,
                                data =trainingiPhoneRFE, 
                                method = "C5.0",
+                               metric="logLoss",
                                trControl= ctrl)
 
 # Test c50 RFE iPhone Accuracy : 0.7226  ,  Kappa : 0.4365 
 
 DecTreePredRFEiPhone <- predict(DecTreeModelRFEiPhone, newdata = testingiPhoneRFE)
 
-print(cmDecTreeRFEiPhone <- confusionMatrix(DecTreePredRFEiPhone, testingiPhoneRFE$iphonesentiment))
+print(cmDecTreeRFEiPhone <- confusionMatrix(DecTreePredRFEiPhone, testingiPhoneRFE$iphonesentiment, positive = "POS"))
 
 # saveRDS(DecTreeModelRFEiPhone,"DecTreeModelRFEiPhone.RDS")
 
@@ -136,13 +141,14 @@ print(cmDecTreeRFEiPhone <- confusionMatrix(DecTreePredRFEiPhone, testingiPhoneR
 DecTreeModelRFESamsung <- train(galaxysentiment ~ .,
                                 data =trainingSamsungRFE, 
                                 method = "C5.0",
+                                metric="logLoss",
                                 trControl= ctrl)
 
 # Test c50 RFE Samsung   Accuracy : 0.6518 , Kappa : 0.2093  
 
 DecTreePredRFESamsung <- predict(DecTreeModelRFESamsung, newdata = testingSamsungRFE)
 
-print(cmDecTreeRFESamsung <- confusionMatrix(DecTreePredRFESamsung, testingSamsungRFE$galaxysentiment))
+print(cmDecTreeRFESamsung <- confusionMatrix(DecTreePredRFESamsung, testingSamsungRFE$galaxysentiment, positive = "POS"))
 
 # saveRDS(DecTreeModelRFESamsung,"DecTreeModelRFESamsung.RDS")
 
@@ -151,8 +157,8 @@ stopCluster(cl)
 ###CONCLUSIONS
 # Even with feature engenieering done by correlation, nearzero variance and recursive feature elimination the models
 # still suffer from the class imbalance. In order to better this we need to solve the clas imbalace
-# for iphone : c50 RFE iPhone Accuracy : 0.7226  ,  Kappa : 0.4365 RFE FEATURED better than OOB
-# for samsung : oob samsung Accuracy : 0.6544 ,  Kappa : 0.2164 still better than any of above
+# for iphone COR FEATURED better than OOB
+# for samsung : oob samsung Accuracy : Accuracy : 0.8247  , Kappa : 0.2543 still better than any of above
 
 
 

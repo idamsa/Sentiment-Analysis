@@ -1,23 +1,17 @@
 source("Open and Preprocess Sentiment Analysis.R")
 # Class Imbalance Solution -------------------------------------------
 
-# TRIED 1 before anything else : LOSSMATRIX: add summaryFunction=mnLogLoss,classProbs = T to to train control and 
-# metric = "logloss" to train it was better with 0.1 acc and kappa
-# 2ND STEPT TO TRY: ROSE
-# 3RD UPSAMPLE/ DOWNSAMPLE/ BOTHWAYSSAMPLE
-
 # Check proportions for the 5 classes
 # Class 5 highly disproportionate, classes 1,2,3 vey low proportion, 0,4 ok
 round(prop.table(table(iPhone$iphonesentiment)), 2)   
-#   0    1    2    3    4    5 
-# 0.15 0.03 0.03 0.09 0.11 0.58 
+# NEG  POS 
+# 0.22 0.78 
 round(prop.table(table(samsung$galaxysentiment)), 2)
-#   0    1    2    3    4    5 
-# 0.13 0.03 0.03 0.09 0.11 0.60 
+# NEG POS 
+# 0.2 0.8  
+# Fixed the imbalance with SMOTE IN THE TRAIN CONTROL
 
-
-
-# Feature Selection Cases ----
+# # Feature Selection Cases ----
 
 # 1. Correlation Matrix ----
 # Eliminate highly correlated features
@@ -30,7 +24,7 @@ hciPhone <- findCorrelation(corMatrixiPhone , cutoff = 0.9) # extracts the corre
 hciPhone <- sort(hciPhone)
 iPhoneCOR <- iPhoneCOR[,-c(hciPhone)]
 iPhoneCOR$iphonesentiment <- factor(iPhoneCOR$iphonesentiment, ordered = T)
-iPhoneCOR$iphonesentiment <- plyr::revalue(iPhoneCOR$iphonesentiment, c("0"="VNEG", "1" = "NEG", "2" = "SNEG","3" = "SPOS", "4" = "POS", "5" = "HPOS"))
+iPhoneCOR$iphonesentiment <- plyr::revalue(iPhoneCOR$iphonesentiment, c("1"="NEG", "2" = "POS"))
 
 
 
@@ -42,7 +36,7 @@ hcSamsung <- findCorrelation(corMatrixSamsung, cutoff = 0.9) # extracts the corr
 hcSamsung <- sort(hcSamsung)
 samsungCOR <- samsungCOR[,-c(hcSamsung)]
 samsungCOR$galaxysentiment <- factor(samsungCOR$galaxysentiment , ordered = T)
-samsung$galaxysentiment <- plyr::revalue(samsung$galaxysentiment, c("0"="VNEG", "1" = "NEG", "2" = "SNEG","3" = "SPOS", "4" = "POS", "5" = "HPOS"))
+samsungCOR$galaxysentiment <- plyr::revalue(samsungCOR$galaxysentiment, c("1"="NEG", "2" = "POS"))
 
 # 2. Feature Variance ----
 # Eliminate near zero variance features
@@ -132,7 +126,7 @@ samsungRFE <- samsung[,predictors(rfeResultsSamsung)]
 samsungRFE$galaxysentiment <- samsung$galaxysentiment
 
 # review outcome
-str(samsungRFE)
+as.data.frame(unlist(samsungRFE)) # just 1 predictor
 
 # save rfe
 if (!exists("RFE Samsung")) {

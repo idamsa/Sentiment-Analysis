@@ -14,7 +14,8 @@ testingSamsung <- samsung[-inTrainSamsung,]
 
 # Out of the Box Models ----
 # Train Control
-ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3, allowParallel = T)
+# Added smote sampling to the train control in order to deal with the class imbalance
+ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3, allowParallel = T, sampling = "smote")
 
 # set up paralell
 detectCores()
@@ -33,11 +34,11 @@ DecTreeModelOOBiPhone <- train(iphonesentiment ~ .,
                                method = "C5.0",
                                trControl= ctrl)
 
-# Test c50 OOB iPhone Accuracy : 0.7195  , Kappa : 0.4283  
+# Test c50 OOB iPhone Accuracy : 0.8597   , Kappa : 0.4902 
 
 DecTreePredOOBiPhone <- predict(DecTreeModelOOBiPhone, newdata = testingiPhone)
 
-print(cmDecTreeOOBiPhone <- confusionMatrix(DecTreePredOOBiPhone, testingiPhone$iphonesentiment))
+print(cmDecTreeOOBiPhone <- confusionMatrix(DecTreePredOOBiPhone, testingiPhone$iphonesentiment, positive = "POS"))
 
 # saveRDS(DecTreeModelOOBiPhone,"DecTreeModelOOBiPhone.RDS")
 
@@ -48,13 +49,13 @@ DecTreeModelOOBSamsung <- train(galaxysentiment ~ .,
                                method = "C5.0",
                                trControl= ctrl)
 
-# Test c50 OOB Samsung  Accuracy : 0.6544 ,  Kappa : 0.2164
+# Test c50 OOB Samsung  Accuracy : 0.8247   ,   Kappa : 0.2543
 
 DecTreePredOOBSamsung <- predict(DecTreeModelOOBSamsung, newdata = testingSamsung)
 
-print(cmDecTreeOOBSamsung <- confusionMatrix(DecTreePredOOBSamsung, testingSamsung$galaxysentiment))
+print(cmDecTreeOOBSamsung <- confusionMatrix(DecTreePredOOBSamsung, testingSamsung$galaxysentiment,positive = "POS"))
 
-# saveRDS(DecTreeModelOOBSamsung,"DecTreeModelOOBSamsung.RDS")
+#saveRDS(DecTreeModelOOBSamsung,"DecTreeModelOOBSamsung.RDS")
 
 #_________________________________________________
 
@@ -65,11 +66,11 @@ rfModelOOBiPhone <- train(iphonesentiment ~ .,
                                method = "rf",
                                trControl= ctrl)
 
-# Test Random Forest OOB iPhone  Accuracy : 0.7203  Kappa : 0.4259  
+# Test Random Forest OOB iPhone Accuracy : 0.8648  Kappa : 0.4987
 
 rfPredOOBiPhone <- predict(rfModelOOBiPhone, newdata = testingiPhone)
 
-print(cmRfOOBiPhone <- confusionMatrix(rfPredOOBiPhone, testingiPhone$iphonesentiment)) 
+print(cmRfOOBiPhone <- confusionMatrix(rfPredOOBiPhone, testingiPhone$iphonesentiment, positive = "POS")) 
 
 # saveRDS(rfModelOOBiPhone,"rfModelOOBiPhone.RDS")
 
@@ -80,11 +81,12 @@ rfOOBSamsung <- train(galaxysentiment ~ .,
                                 method = "rf",
                                 trControl= ctrl)
 
-# Test Random Forest OOB Samsung Accuracy : 0.6554    Kappa : 0.2144  
+# Test Random Forest OOB Samsung                Accuracy : 0.825                    Kappa : 0.2579          
+
 
 rfPredOOBSamsung <- predict(rfOOBSamsung, newdata = testingSamsung)
 
-print(cmRfOOBSamsung <- confusionMatrix(rfPredOOBSamsung, testingSamsung$galaxysentiment))
+print(cmRfOOBSamsung <- confusionMatrix(rfPredOOBSamsung, testingSamsung$galaxysentiment, positive = "POS"))
 
 # saveRDS(rfOOBSamsung,"rfModelOOBSamsung.RDS")
 
@@ -99,11 +101,11 @@ svmModelOOBiPhone <- train(iphonesentiment ~ .,
 
 # Test SVM OOB iPhone 
 # Accuracy : 0.6077 ,Kappa : 0.0987 for SVM Linear
-# Accuracy : 0.7075,  Kappa : 0.3939 for SVM Radial
+#  Accuracy : 0.8604,  Kappa : 0.4726 for SVM Radial
 
 svmPredOOBiPhone <- predict(svmModelOOBiPhone, newdata = testingiPhone)
 
-print(cmSvmOOBiPhone <- confusionMatrix(svmPredOOBiPhone, testingiPhone$iphonesentiment))
+print(cmSvmOOBiPhone <- confusionMatrix(svmPredOOBiPhone, testingiPhone$iphonesentiment, positive = "POS"))
 
 # saveRDS(svmModelOOBiPhone,"svmModelOOBiPhone.RDS")
 
@@ -115,14 +117,14 @@ svmModelOOBSamsung <- train(galaxysentiment ~ .,
                       trControl= ctrl)
 
 # Test SVM OOB Samsung 
-# Accuracy : 0.6557, Kappa : 0.2173 for SVM Linear
+# Accuracy : 0.8191,  Kappa : 0.2645  for SVM Linear
 # Accuracy : 0.6549, Kappa : 0.2163 for SVM Radial
 
 svmPredOOBSamsung <- predict(svmModelOOBSamsung, newdata = testingSamsung)
 
-print(cmSvmOOBSamsung <- confusionMatrix(svmPredOOBSamsung, testingSamsung$galaxysentiment))
+print(cmSvmOOBSamsung <- confusionMatrix(svmPredOOBSamsung, testingSamsung$galaxysentiment, positive = "POS"))
 
-# saveRDS(svmModelOOBSamsung,"svmModelOOBSamsung.RDS")
+#saveRDS(svmModelOOBSamsung,"svmModelOOBSamsung.RDS")
 
 #kknn (from the kknn package)
 
@@ -133,11 +135,11 @@ kknnModelOOBiPhone <- train(iphonesentiment ~ .,
                            method = "kknn",
                            trControl= ctrl)
 
-# Test KKNN OOB iPhone  Accuracy : 0.2789, Kappa : 0.1123 
+# Test KKNN OOB iPhone  Accuracy : 0.7774, Kappa : 0.1123 
 
 kknnPredOOBiPhone <- predict(kknnModelOOBiPhone, newdata = testingiPhone)
 
-print(cmKknnOOBiPhone <- confusionMatrix(kknnPredOOBiPhone, testingiPhone$iphonesentiment))
+print(cmKknnOOBiPhone <- confusionMatrix(kknnPredOOBiPhone, testingiPhone$iphonesentiment, positive = "POS"))
 
 # saveRDS(kknnModelOOBiPhone,"kknnModelOOBiPhone.RDS")
 
@@ -148,19 +150,18 @@ kknnModelOOBSamsung <- train(galaxysentiment ~ .,
                        method = "kknn",
                        trControl= ctrl)
 
-# Test KKNN OOB Samsung  Accuracy : 0.1417 , Kappa : 0.0114 
+# Test KKNN OOB Samsung   Accuracy : 0.8162 , Kappa : 0.0114 
 
 kknnPredOOBSamsung <- predict(kknnModelOOBSamsung, newdata = testingSamsung)
 
-print(cmKknnOOBSamsung <- confusionMatrix(kknnPredOOBSamsung, testingSamsung$galaxysentiment))
+print(cmKknnOOBSamsung <- confusionMatrix(kknnPredOOBSamsung, testingSamsung$galaxysentiment, positive = "POS"))
 
-# saveRDS(kknnModelOOBSamsung,"kknnModelOOBSamsung.RDS")
+#saveRDS(kknnModelOOBSamsung,"kknnModelOOBSamsung.RDS")
 
 stopCluster(cl)
 
 ### CONCLUSIONS
 # BEST MODEL iPhone : Decision Tree
 # BEST MODEL Samsung : Decision Tree
-# All the models suffer because of the class imbalnce with the level 5 beeing 
+# All the models still suffer because of the class imbalnce with the NEG LAVEL beeing 
 # the one that brings the problems
-# In order to better the models we have to work on the class imbalance 
